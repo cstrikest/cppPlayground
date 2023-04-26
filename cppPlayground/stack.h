@@ -10,6 +10,7 @@ private:
 
 public:
 	Stack(int);
+	Stack(const Stack&);
 	~Stack();
 	int getsize() const;
 	void push(int);
@@ -20,6 +21,7 @@ public:
 
 	Stack& operator+(int);
 	Stack& operator+=(int);
+	Stack& operator=(const Stack&);
 	int operator--();
 
 	friend std::ostream& operator<<(std::ostream&, Stack&);
