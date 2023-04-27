@@ -1,12 +1,5 @@
 ﻿#include "Stack.h"
 
-Stack::Stack(int size)
-{
-	__maxPtr = size;
-	__mem = new int[__maxPtr];
-	__ptr = 0;
-}
-
 // 复制构造函数 需要提供新new的指针。因为旧的已经被delete，直接赋值会指向释放过的内存。
 Stack::Stack(const Stack& stack)
 {
@@ -18,17 +11,7 @@ Stack::Stack(const Stack& stack)
 
 // 析构函数。如果别的函数在使用完引用后用值传递返回拷贝的对象的话，原来的对象会调用一次析构函数。
 // 导致新对象在结束后delete两次，引发异常。
-inline Stack::~Stack() { delete[] __mem; }
 
-inline void Stack::push(int value) { if (__ptr < __maxPtr) *((__mem)+__ptr++) = value; }
-
-inline int Stack::pop() { if (__ptr > 0) return *(__mem + --__ptr); }
-
-inline int Stack::getsize() const { return __ptr; }
-
-inline bool Stack::isFull() const { return __ptr == __maxPtr; }
-
-inline bool Stack::isEmpty() const { return __ptr == 0; };
 
 void Stack::showStack(std::ostream& cout) const
 {
@@ -45,7 +28,7 @@ Stack& Stack::operator+(int value)
 	return *this;
 }
 
-inline Stack& Stack::operator+=(int value)
+Stack& Stack::operator+=(int value)
 {
 	if (this->__ptr < this->__maxPtr) *((this->__mem) + (this->__ptr)++) = value;
 	return *this;
