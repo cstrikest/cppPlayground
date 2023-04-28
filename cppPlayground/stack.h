@@ -57,8 +57,7 @@ public:
 	// 虚析构函数，确保释放派生对象时保持正常的释放顺序。
 	inline virtual ~ZeroableStack() {}
 
+	// 虚函数，重写基类方法。
 	virtual void showStack(std::ostream&) const;
-
-
 };
 void runStack();
