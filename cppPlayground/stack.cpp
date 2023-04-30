@@ -1,38 +1,29 @@
 ﻿#include "Stack.h"
 
-Stack::Stack(int size)
-{
-	__maxPtr = size;
-	__mem = new int[__maxPtr];
-	__ptr = 0;
-}
-
 // 复制构造函数 需要提供新new的指针。因为旧的已经被delete，直接赋值会指向释放过的内存。
 Stack::Stack(const Stack& stack)
 {
-	__maxPtr = stack.__maxPtr;
-	__mem = new int[__maxPtr];
+	__maxptr = stack.__maxptr;
+	__mem = new int[__maxptr];
 	*__mem = *stack.__mem;
 	__ptr = stack.__ptr;
 }
 
 // 析构函数。如果别的函数在使用完引用后用值传递返回拷贝的对象的话，原来的对象会调用一次析构函数。
 // 导致新对象在结束后delete两次，引发异常。
-inline Stack::~Stack() { delete[] __mem; }
 
-inline void Stack::push(int value) { if (__ptr < __maxPtr) *((__mem)+__ptr++) = value; }
-
-inline int Stack::pop() { if (__ptr > 0) return *(__mem + --__ptr); }
-
-int Stack::getsize() const { return __ptr; }
-
-inline bool Stack::isFull() const { return __ptr == __maxPtr; }
-
-inline bool Stack::isEmpty() const { return __ptr == 0; };
 
 void Stack::showStack(std::ostream& cout) const
 {
-	for (int i = __ptr - 1; i > 0 - 1; i--)
+	for (int i = __ptr - 1; i >= 0; i--)
+	{
+		cout << std::hex << i * 4 << "\t\t" << std::dec << *(__mem + i) << std::endl;
+	}
+}
+
+void ZeroableStack::showStack(std::ostream& cout) const
+{
+	for (int i = __maxptr - 1; i >= 0; i--)
 	{
 		cout << std::hex << i * 4 << "\t\t" << std::dec << *(__mem + i) << std::endl;
 	}
@@ -41,34 +32,34 @@ void Stack::showStack(std::ostream& cout) const
 // 运算符重载
 Stack& Stack::operator+(int value)
 {
-	if (this->__ptr < this->__maxPtr) *((this->__mem) + (this->__ptr)++) = value;
+	if (__ptr < __maxptr) *((__mem) + (__ptr)++) = value;
 	return *this;
 }
 
-inline Stack& Stack::operator+=(int value)
+Stack& Stack::operator+=(int value)
 {
-	if (this->__ptr < this->__maxPtr) *((this->__mem) + (this->__ptr)++) = value;
+	if (__ptr < __maxptr) *((__mem) + (__ptr)++) = value;
 	return *this;
 }
 
 int Stack::operator--() { if (__ptr > 0) return *(__mem + --__ptr); }
 
 // 友元运算符重载 
-std::ostream& operator<<(std::ostream& os, Stack& stack) { return os << "A stack with " << stack.__maxPtr << " integer."; }
+std::ostream& operator<<(std::ostream& os, Stack& stack) { return os << "A stack with " << stack.__maxptr << " integer."; }
 
 // 赋值运算符重载 判断是不是自赋值，然后delete掉等号左边对象现有的指针，new新的指针再赋值。
 Stack& Stack::operator=(const Stack& stack)
 {
 	if (this == &stack) return *this;
 	delete[] __mem;
-	__mem = new int[__maxPtr];
-	__maxPtr = stack.__maxPtr;
+	__mem = new int[__maxptr];
+	__maxptr = stack.__maxptr;
 	*__mem = *stack.__mem;
 	__ptr = stack.__ptr;
 	return *this;
 }
 
-Stack::operator int* () { return this->__mem; }
+Stack::operator int* () { return __mem; }
 
 void runStack()
 {
@@ -86,7 +77,9 @@ void runStack()
 	std::cout << "Maxium " << 4 * std::stoi(size) << " bytes." << std::endl;
 	while (true)
 	{
-		std::cout << ">>";
+		if (stack.isFull()) std::cout << ">|";
+		else if (stack.isEmpty()) std::cout << "|>";
+		else std::cout << ">>";
 		std::getline(std::cin, tmp);
 		std::cin.clear();
 		if (isNumeric(tmp))
@@ -110,8 +103,9 @@ void runStack()
 		}
 		else if (tmp[0] == 's')
 		{
-			if (stack.isEmpty()) std::cout << "-\t\t-" << std::endl;
-			else stack.showStack(std::cout);
+			//if (stack.isEmpty()) std::cout << "-\t\t-" << std::endl;
+			//else stack.showStack(std::cout);
+			stack.showStack(std::cout);
 		}
 		else if (tmp[0] == 'q' or tmp[0] == 'Q') break;
 		else
