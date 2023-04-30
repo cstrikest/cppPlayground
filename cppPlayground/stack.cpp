@@ -24,7 +24,7 @@ inline void Stack::push(int value) { if (__ptr < __maxPtr) *((__mem)+__ptr++) = 
 
 inline int Stack::pop() { if (__ptr > 0) return *(__mem + --__ptr); }
 
-inline int Stack::getsize() const { return __ptr; }
+int Stack::getsize() const { return __ptr; }
 
 inline bool Stack::isFull() const { return __ptr == __maxPtr; }
 

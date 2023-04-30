@@ -2,8 +2,8 @@
 
 int main()
 {
-	// Stack s(1);
-	// s.push(2);
+	//Stack s(1);
+	//s.getsize();
 	//std::cout << *(int*)s << std::endl;
 	runStack();
 	return 0;
