@@ -7,3 +7,4 @@ int main()
 	runStack();
 	return 0;
 }
+

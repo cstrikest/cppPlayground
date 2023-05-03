@@ -10,3 +10,4 @@ int readBmp(const char* path)
 	delete[] data;
 	return 0;
 }
+
