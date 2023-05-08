@@ -3,8 +3,8 @@
 
 int main()
 {
-
-	runStack();
+	//runStack();
+	
 	return 0;
 }
 

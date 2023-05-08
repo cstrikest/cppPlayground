@@ -23,6 +23,9 @@ public:
 		__ptr(0), __maxptr(size), __mem(new int[__maxptr]) {}
 
 	Stack(const Stack&);
+
+	// 析构函数。如果别的函数在使用完引用后用值传递返回拷贝的对象的话，原来的对象会调用一次析构函数。
+	// 导致新对象在结束后delete两次，引发异常。
 	virtual inline ~Stack() { delete[] __mem;}
 	inline void push(int value)
 	{
