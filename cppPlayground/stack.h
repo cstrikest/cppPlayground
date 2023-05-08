@@ -23,7 +23,7 @@ public:
 		__ptr(0), __maxptr(size), __mem(new int[__maxptr]) {}
 
 	Stack(const Stack&);
-	virtual inline ~Stack() { delete[] __mem; std::cout << "!!!"; }
+	virtual inline ~Stack() { delete[] __mem;}
 	inline void push(int value)
 	{
 		if (__ptr < __maxptr) *((__mem)+__ptr++) = value;

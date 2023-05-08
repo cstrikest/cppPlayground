@@ -9,10 +9,6 @@ Stack::Stack(const Stack& stack)
 	__ptr = stack.__ptr;
 }
 
-// 析构函数。如果别的函数在使用完引用后用值传递返回拷贝的对象的话，原来的对象会调用一次析构函数。
-// 导致新对象在结束后delete两次，引发异常。
-
-
 void Stack::showStack(std::ostream& cout) const
 {
 	for (int i = __ptr - 1; i >= 0; i--)

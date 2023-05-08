@@ -3,7 +3,7 @@
 
 int main()
 {
-	readBmp("test.bmp");
+
 	runStack();
 	return 0;
 }
