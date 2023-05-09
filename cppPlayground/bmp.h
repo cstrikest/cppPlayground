@@ -12,15 +12,9 @@
 #include <fstream>
 #include <vector>
 
-typedef int simple_line[1][50][3];
-
-typedef std::vector<std::vector<std::vector<int>>> Image;
-
-Image createImage(int width, int height);
-
 class FileReader
 {
-	
+
 };
 
 class FileWriter
@@ -33,13 +27,13 @@ public:
 	inline FileWriter(const char* path) { ofs.open(path, std::ios::binary | std::ios::out); }
 	~FileWriter() { ofs.close(); }
 
-	inline void writeByte(char byte) {ofs.write(&byte, 1);}
+	inline void writeByte(char byte) { ofs.write(&byte, 1); }
 	inline void writeBuffer(char* buffer, int length) { ofs.write(buffer, length); }
 };
 
 class BmpReader : FileReader
 {
-	
+
 };
 
 class BmpWriter : FileWriter
@@ -76,12 +70,30 @@ struct BmpInfoHeader
 	unsigned short biBitCount = 24;
 	unsigned int biCompression = 0;
 	unsigned int biSizeImage;
-	int biXPelsPerMeter = 300; 
-	int biYPelsPerMeter = 300; 
-	unsigned int    biClrUsed = 0;      
-	unsigned int    biClrImportant = 0;  
+	int biXPelsPerMeter = 300;
+	int biYPelsPerMeter = 300;
+	unsigned int    biClrUsed = 0;
+	unsigned int    biClrImportant = 0;
 
 };
+
+class Color
+{
+public:
+	unsigned short __R;
+	unsigned short __G;
+	unsigned short __B;
+	inline Color(int r, int g, int b) : __R(r), __G(g), __B(b) {}
+	inline void setColor(int r, int g, int b) { __R = r; __G = g; __B = b; }
+	inline void setColor(Color& color)
+	{
+		__R = color.__R;
+		__G = color.__G;
+		__B = color.__B;
+	}
+};
+
+typedef std::vector<std::vector<Color>> Image;
 
 class Bmp
 {
@@ -89,14 +101,21 @@ private:
 	BmpFileHeader __header;
 	BmpInfoHeader __info;
 	char* __data;
+	Image __image;
+	unsigned int __row_offset;
 
 public:
-	Bmp(BF_TYPE type, int width, int height, Image img);
+	Bmp(BF_TYPE type, Image img);
+	Bmp(BF_TYPE type, int width, int height);
 	~Bmp() {};
 	int const getSize();
 	int const getWidth();
 	int const getHeight();
+
+
+	void fillColor(Color& color);
+	void setRowOffset();
 };
 
-void fillColor(simple_line& l);
-void fillColor(Image& image);
+
+
