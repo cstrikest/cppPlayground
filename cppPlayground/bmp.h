@@ -1,10 +1,22 @@
 ﻿#pragma once
+//#pragma once 和 #ifndef #define 的作用确实是防止一个头文件在同一个源文件中被多次包含。
+//然而，这并不能解决链接时的重复符号问题，因为这个问题是由多个源文件包含同一个头文件导致的。
+//在这种情况下，虽然每个源文件都只包含一份头文件的内容，但是当链接器将所有源文件链接在一起时，
+//它会发现有多个相同的符号定义，从而导致重复符号错误。
+
+//各种防止重复包含的方法是防止同一个源文件包含多个相同的头文件（间接重复包含）
+//不是防止多个源文件包含同一个。毕竟头文件用途就是为了让多个源文件去包含他。
+//所以在头文件定义了非成员函数之后，会出现符号错误。
 #include <iostream>
 #include <fstream>
 #include <fstream>
 #include <vector>
 
-typedef std::vector<std::vector<int>[3]> Image;
+typedef int simple_line[1][50][3];
+
+typedef std::vector<std::vector<std::vector<int>>> Image;
+
+Image createImage(int width, int height);
 
 class FileReader
 {
@@ -18,10 +30,11 @@ private:
 
 public:
 	FileWriter() {}
-	inline FileWriter(const char* path) { ofs.open(path, std::ios::binary | std::ios::in); }
+	inline FileWriter(const char* path) { ofs.open(path, std::ios::binary | std::ios::out); }
 	~FileWriter() { ofs.close(); }
 
-	void writeByte(char);
+	inline void writeByte(char byte) {ofs.write(&byte, 1);}
+	inline void writeBuffer(char* buffer, int length) { ofs.write(buffer, length); }
 };
 
 class BmpReader : FileReader
@@ -84,4 +97,6 @@ public:
 	int const getWidth();
 	int const getHeight();
 };
-//https://blog.csdn.net/m0_62505136/article/details/121153508
+
+void fillColor(simple_line& l);
+void fillColor(Image& image);
