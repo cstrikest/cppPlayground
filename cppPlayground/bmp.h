@@ -1,18 +1,38 @@
 ﻿#pragma once
 #include <iostream>
 #include <fstream>
+#include <fstream>
 #include <vector>
 
 typedef std::vector<std::vector<int>[3]> Image;
 
 class FileReader
 {
+	
+};
 
+class FileWriter
+{
+private:
+	std::ofstream ofs;
+
+public:
+	FileWriter() {}
+	inline FileWriter(const char* path) { ofs.open(path, std::ios::binary | std::ios::in); }
+	~FileWriter() { ofs.close(); }
+
+	void writeByte(char);
 };
 
 class BmpReader : FileReader
 {
+	
+};
 
+class BmpWriter : FileWriter
+{
+public:
+	inline BmpWriter(const char* path) : FileWriter(path) {};
 };
 
 enum BF_TYPE
@@ -43,10 +63,10 @@ struct BmpInfoHeader
 	unsigned short biBitCount = 24;
 	unsigned int biCompression = 0;
 	unsigned int biSizeImage;
-	int biXPelsPerMeter = 300; // 说明水平分辨率，用象素/米表示。一般为0 (38-41字节)
-	int biYPelsPerMeter = 300; // 说明垂直分辨率，用象素/米表示。一般为0 (42-45字节)
-	unsigned int    biClrUsed = 0;       // 说明位图实际使用的彩色表中的颜色索引数。 (46-49字节)
-	unsigned int    biClrImportant = 0;  // 说明对图象显示有重要影响的颜色索引的数目，如果是0，表示都重要。(50-53字节)
+	int biXPelsPerMeter = 300; 
+	int biYPelsPerMeter = 300; 
+	unsigned int    biClrUsed = 0;      
+	unsigned int    biClrImportant = 0;  
 
 };
 
