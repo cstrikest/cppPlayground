@@ -12,36 +12,6 @@
 #include <fstream>
 #include <vector>
 
-class FileReader
-{
-
-};
-
-class FileWriter
-{
-private:
-	std::ofstream ofs;
-
-public:
-	FileWriter() {}
-	inline FileWriter(const char* path) { ofs.open(path, std::ios::binary | std::ios::out); }
-	~FileWriter() { ofs.close(); }
-
-	inline void writeByte(char byte) { ofs.write(&byte, 1); }
-	inline void writeBuffer(char* buffer, int length) { ofs.write(buffer, length); }
-};
-
-class BmpReader : FileReader
-{
-
-};
-
-class BmpWriter : FileWriter
-{
-public:
-	inline BmpWriter(const char* path) : FileWriter(path) {};
-};
-
 enum BF_TYPE
 {
 	BM = 0x4d42,	//Windows3+ ,NT
@@ -52,18 +22,21 @@ enum BF_TYPE
 	PT = 0x5450		//		Pointer
 };
 
+// 按照2字节对齐
+#pragma pack(2)
 struct BmpFileHeader
 {
 	unsigned short bfType;
 	unsigned int bfSize;
 	const unsigned short bfReserved1 = 0;
 	const unsigned short bfReserved2 = 0;
-	unsigned int bfOffBits;
+	unsigned int bfOffBits = 54;
 };
 
+#pragma pack(4)
 struct BmpInfoHeader
 {
-	unsigned int biSize;
+	unsigned int biSize = 40;
 	int biWidth;
 	int biHeight;
 	const unsigned short biPlanes = 1;
@@ -76,14 +49,21 @@ struct BmpInfoHeader
 	unsigned int    biClrImportant = 0;
 
 };
+#pragma pack()
 
 class Color
 {
 public:
-	unsigned short __R;
-	unsigned short __G;
-	unsigned short __B;
+	unsigned char __R;
+	unsigned char __G;
+	unsigned char __B;
 	inline Color(int r, int g, int b) : __R(r), __G(g), __B(b) {}
+	inline Color(const Color& color)
+	{
+		__R = color.__R;
+		__G = color.__G;
+		__B = color.__B;
+	}
 	inline void setColor(int r, int g, int b) { __R = r; __G = g; __B = b; }
 	inline void setColor(Color& color)
 	{
@@ -100,22 +80,23 @@ class Bmp
 private:
 	BmpFileHeader __header;
 	BmpInfoHeader __info;
-	char* __data;
 	Image __image;
 	unsigned int __row_offset;
 
 public:
 	Bmp(BF_TYPE type, Image img);
-	Bmp(BF_TYPE type, int width, int height);
+	Bmp(BF_TYPE type, int width, int height, Color default_color);
 	~Bmp() {};
-	int const getSize();
-	int const getWidth();
-	int const getHeight();
 
+	inline int const getImgSize() { return __info.biWidth * __info.biHeight * 3; }
+	inline int const getBfSize() { return __header.bfSize; }
+	inline int const getBiSize() { return __info.biSize; }
+	inline int const getWidth() { return __info.biWidth; }
+	inline int const getHeight() { return __info.biHeight; }
+	inline int const getRowOffset() { return __row_offset; }
 
-	void fillColor(Color& color);
+	void fillColor(Color color);
 	void setRowOffset();
+
+	void writeBmpFile(const char* path);
 };
-
-
-
