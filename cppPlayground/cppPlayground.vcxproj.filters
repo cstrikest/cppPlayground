@@ -27,6 +27,9 @@
     <ClCompile Include="bmp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="image.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stack.h">
@@ -36,6 +39,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="bmp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="image.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="colors.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

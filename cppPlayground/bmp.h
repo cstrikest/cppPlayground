@@ -9,8 +9,9 @@
 //所以在头文件定义了非成员函数之后，会出现符号错误。
 #include <iostream>
 #include <fstream>
-#include <fstream>
 #include <vector>
+
+constexpr const char* ZERO_CHAR = "";
 
 enum BF_TYPE
 {
@@ -22,71 +23,60 @@ enum BF_TYPE
 	PT = 0x5450		//		Pointer
 };
 
-// 按照2字节对齐
+// 按照n字节对齐
 #pragma pack(2)
 struct BmpFileHeader
 {
-	unsigned short bfType;
-	unsigned int bfSize;
-	const unsigned short bfReserved1 = 0;
-	const unsigned short bfReserved2 = 0;
-	unsigned int bfOffBits = 54;
+	unsigned short			bfType;
+	unsigned int			bfSize;
+	const unsigned short	bfReserved1 = 0x0;
+	const unsigned short	bfReserved2 = 0;
+	const unsigned int		bfOffBits = 0x36;
 };
 
 #pragma pack(4)
 struct BmpInfoHeader
 {
-	unsigned int biSize = 40;
-	int biWidth;
-	int biHeight;
-	const unsigned short biPlanes = 1;
-	unsigned short biBitCount = 24;
-	unsigned int biCompression = 0;
-	unsigned int biSizeImage;
-	int biXPelsPerMeter = 300;
-	int biYPelsPerMeter = 300;
-	unsigned int    biClrUsed = 0;
-	unsigned int    biClrImportant = 0;
+	const unsigned int		biSize = 40;
+	int						biWidth;
+	int						biHeight;
+	const unsigned short	biPlanes = 1;
+	const unsigned short	biBitCount = 24;
+	const unsigned int		biCompression = 0;
+	unsigned int			biSizeImage;
+	const int				biXPelsPerMeter = 300;
+	const int				biYPelsPerMeter = 300;
+	const unsigned int		biClrUsed = 0;
+	const unsigned int		biClrImportant = 0;
 
 };
-#pragma pack()
 
-class Color
+#pragma pack(1)
+struct TripleRGB
 {
-public:
-	unsigned char __R;
-	unsigned char __G;
-	unsigned char __B;
-	inline Color(int r, int g, int b) : __R(r), __G(g), __B(b) {}
-	inline Color(const Color& color)
-	{
-		__R = color.__R;
-		__G = color.__G;
-		__B = color.__B;
-	}
-	inline void setColor(int r, int g, int b) { __R = r; __G = g; __B = b; }
-	inline void setColor(Color& color)
-	{
-		__R = color.__R;
-		__G = color.__G;
-		__B = color.__B;
-	}
+	unsigned char			b;
+	unsigned char			g;
+	unsigned char			r;
 };
 
-typedef std::vector<std::vector<Color>> Image;
-
+#pragma pack()
 class Bmp
 {
 private:
 	BmpFileHeader __header;
 	BmpInfoHeader __info;
-	Image __image;
 	unsigned int __row_offset;
 
 public:
-	Bmp(BF_TYPE type, Image img);
-	Bmp(BF_TYPE type, int width, int height, Color default_color);
-	~Bmp() {};
+	TripleRGB* surface;
+	unsigned int width;
+	unsigned int height;
+
+	Bmp(BF_TYPE type, int width, int height, TripleRGB* surface);
+	Bmp(BF_TYPE type, int width, int height, TripleRGB color);
+	Bmp(BF_TYPE type, const char* path);
+	Bmp(const Bmp& bmp);
+	inline ~Bmp() { delete[] surface; }
 
 	inline int const getImgSize() { return __info.biWidth * __info.biHeight * 3; }
 	inline int const getBfSize() { return __header.bfSize; }
@@ -95,8 +85,9 @@ public:
 	inline int const getHeight() { return __info.biHeight; }
 	inline int const getRowOffset() { return __row_offset; }
 
-	void fillColor(Color color);
+	void fillColor(TripleRGB color);
 	void setRowOffset();
 
 	void writeBmpFile(const char* path);
+	void setPixel();
 };

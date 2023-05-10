@@ -1,13 +1,14 @@
 #include "stack.h"
 #include "bmp.h"
+#include "colors.h"
 
 int main()
 {
 	//runStack();
-	Bmp i(BM, 63, 30, Color(55, 62, 124));
-	i.fillColor(Color(255, 0, 0));
-	
-	i.writeBmpFile("C:\\Users\\0070200621\\Desktop\\a.bmp");
+	auto p = "C:\\Users\\0070200621\\Desktop\\a.bmp";
+	auto b = "C:\\Users\\0070200621\\Desktop\\b.bmp";
+	Bmp i(BM, 13, 10, SAKURA);
+	i.writeBmpFile(p);
+	Bmp r(BM, b);
 	return 0;
 }
-
