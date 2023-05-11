@@ -1,12 +1,12 @@
 ﻿#include "Stack.h"
 
 // 复制构造函数 需要提供新new的指针。因为旧的已经被delete，直接赋值会指向释放过的内存。
-Stack::Stack(const Stack& stack)
+Stack::Stack(const Stack& stack) :
+	__maxptr(stack.__maxptr),
+	__ptr(stack.__ptr)
 {
-	__maxptr = stack.__maxptr;
 	__mem = new int[__maxptr];
 	*__mem = *stack.__mem;
-	__ptr = stack.__ptr;
 }
 
 Stack::Stack(Stack&& stack) noexcept :

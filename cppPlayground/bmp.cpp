@@ -1,27 +1,32 @@
 #include "bmp.h"
 
-Bmp::Bmp(BF_TYPE type, int width, int height, TripleRGB* surface)
+Bmp::Bmp(BF_TYPE type, int width, int height, TripleRGB* _surface)
 {
 	__info.biWidth = width;
 	__info.biHeight = height;
+
 	setRowOffset();
+
 	__header.bfType = type;
 	__header.bfSize = (width * 3 + __row_offset) * height + __header.bfOffBits;
 	__info.biSizeImage = (width * 3 + __row_offset) * height;
 
 	surface = new TripleRGB[width * height];
 
-	*surface = *surface;
+	*surface = *_surface;
 }
 
 Bmp::Bmp(BF_TYPE type, int width, int height, TripleRGB color)
 {
 	__info.biWidth = width;
 	__info.biHeight = height;
+
 	setRowOffset();
+
 	__header.bfType = type;
 	__header.bfSize = (width * 3 + __row_offset) * height + __header.bfOffBits;
 	__info.biSizeImage = (width * 3 + __row_offset) * height;
+
 
 	surface = new TripleRGB[width * height];
 
@@ -39,13 +44,20 @@ Bmp::Bmp(BF_TYPE type, const char* path)
 	std::ifstream ifs(path, std::ios::binary | std::ios::in);
 	ifs.read((char*)&__header, sizeof(BmpFileHeader));
 	ifs.read((char*)&__info, sizeof(BmpInfoHeader));
+
+	setRowOffset();
+
 	surface = new TripleRGB[__info.biWidth * __info.biHeight];
+
+	char sink = ' ';
+
 	for (int row = 0; row < __info.biHeight; row++)
 	{
 		for (int column = 0; column < __info.biWidth; column++)
 		{
 			ifs.read((char*)(surface + (row * __info.biWidth + column)), sizeof(TripleRGB));
 		}
+		ifs.read(&sink, __row_offset);
 	}
 }
 
