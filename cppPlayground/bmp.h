@@ -19,7 +19,7 @@
 //0x00指针
 constexpr const char* ZERO_CHAR = "";
 
-//BMP文件种类
+//BMP文件标识符
 enum BF_TYPE
 {
 	BM = 0x4d42,	//Windows3+ ,NT
@@ -33,33 +33,33 @@ enum BF_TYPE
 //按照n字节对齐
 //不对齐的话bfSize会落到0x04上，文件头就会变成16字节，无法读取
 #pragma pack(2)
+//BMP文件头 定义了文件标识符 文件大小等											14bytes
 struct BmpFileHeader
 {
-	unsigned short			bfType;
-	unsigned int			bfSize;
-	const unsigned short	bfReserved1 = 0x00;
-	const unsigned short	bfReserved2 = 0x00;
-	const unsigned int		bfOffBits = 0x36;
+	unsigned short			bfType;					//标识符，现在一般是BM		2
+	unsigned int			bfSize;					//文件大小				4
+	const unsigned short	bfReserved1 = 0x00;		//固定置0				2
+	const unsigned short	bfReserved2 = 0x00;		//固定置0				2
+	const unsigned int		bfOffBits = 0x36;		//图片信息偏移量			4
 };
 
-//这里按min(MAX_SIZE,4)对齐正好，所以恢复默认
+//这里按min(SIZE,MAX_SIZE)对齐正好，所以恢复默认
 #pragma pack()
+//BMP信息头 定义了图片具体信息													40bytes
 struct BmpInfoHeader
 {
-	const unsigned int		biSize = 40;
-	int						biWidth;
-	int						biHeight;
-	const unsigned short	biPlanes = 1;
-	const unsigned short	biBitCount = 24;
-	const unsigned int		biCompression = 0;
-	unsigned int			biSizeImage;
-	const int				biXPelsPerMeter = 300;
-	const int				biYPelsPerMeter = 300;
-	const unsigned int		biClrUsed = 0;
-	const unsigned int		biClrImportant = 0;
-
+	const unsigned int		biSize = 40;			//信息头长度				4
+	int						biWidth;				//宽 为负则是翻转			4
+	int						biHeight;				//高						4
+	const unsigned short	biPlanes = 1;			//面数 都是平面图所以置1	2
+	const unsigned short	biBitCount = 24;		//像素位数 3原色8bit分解能	2
+	const unsigned int		biCompression = 0;		//压缩方式 0不压缩			4
+	unsigned int			biSizeImage;			//图像信息大小			4
+	const int				biXPelsPerMeter = 300;	//横向PPI				4
+	const int				biYPelsPerMeter = 300;	//纵向PPI				4
+	const unsigned int		biClrUsed = 0;			//彩色表中的颜色索引数		4
+	const unsigned int		biClrImportant = 0;		//重要颜色索引数 0为都重要	4
 };
-
 
 struct TripleRGB
 {
@@ -75,6 +75,7 @@ private:
 	BmpFileHeader __header;
 	//信息头
 	BmpInfoHeader __info;
+	//补0行偏移量
 	unsigned int __row_offset;
 
 public:
@@ -92,15 +93,15 @@ public:
 	//delete RAW指针
 	inline ~Bmp() { delete[] surface; }
 
-	inline int const getImgSize() { return __info.biWidth * __info.biHeight * 3; }
-	inline int const getPixelNumber() { return __info.biWidth * __info.biHeight; }
-	inline int const getBfSize() { return __header.bfSize; }
-	inline int const getBiSize() { return __info.biSize; }
-	inline int const getWidth() { return __info.biWidth; }
-	inline int const getHeight() { return __info.biHeight; }
-	inline int const getRowOffset() { return __row_offset; }
+	inline int getImgSize() const { return __info.biWidth * __info.biHeight * 3; }
+	inline int getPixelNumber() const { return __info.biWidth * __info.biHeight; }
+	inline int getBfSize() const { return __header.bfSize; }
+	inline int getBiSize() const { return __info.biSize; }
+	inline int getWidth() const { return __info.biWidth; }
+	inline int getHeight() const { return __info.biHeight; }
+	inline int getRowOffset() const { return __row_offset; }
 
-	//计算width与4的模为行偏移量 为了补0
+	//根据width与4的模计算行偏移量
 	void setRowOffset();
 
 	//写BMP文件

@@ -9,6 +9,15 @@ Stack::Stack(const Stack& stack)
 	__ptr = stack.__ptr;
 }
 
+Stack::Stack(Stack&& stack) noexcept :
+	__maxptr(stack.__maxptr),
+	__ptr(stack.__ptr)
+{
+	__mem = stack.__mem;
+	stack.__mem = nullptr;
+	stack.__maxptr = 0;
+	stack.__ptr = 0;
+}
 void Stack::showStack(std::ostream& cout) const
 {
 	for (int i = __ptr - 1; i >= 0; i--)
@@ -17,24 +26,16 @@ void Stack::showStack(std::ostream& cout) const
 	}
 }
 
-void ZeroableStack::showStack(std::ostream& cout) const
-{
-	for (int i = __maxptr - 1; i >= 0; i--)
-	{
-		cout << std::hex << i * 4 << "\t\t" << std::dec << *(__mem + i) << std::endl;
-	}
-}
-
 // 运算符重载
-Stack& Stack::operator+(int value)
+Stack& Stack::operator+(const int& value)
 {
-	if (__ptr < __maxptr) *((__mem) + (__ptr)++) = value;
+	if (__ptr < __maxptr) *((__mem)+(__ptr)++) = value;
 	return *this;
 }
 
-Stack& Stack::operator+=(int value)
+Stack& Stack::operator+=(const int& value)
 {
-	if (__ptr < __maxptr) *((__mem) + (__ptr)++) = value;
+	if (__ptr < __maxptr) *((__mem)+(__ptr)++) = value;
 	return *this;
 }
 
@@ -52,6 +53,19 @@ Stack& Stack::operator=(const Stack& stack)
 	__maxptr = stack.__maxptr;
 	*__mem = *stack.__mem;
 	__ptr = stack.__ptr;
+	return *this;
+}
+
+Stack& Stack::operator=(Stack&& stack) noexcept
+{
+	if (this == &stack) return *this;
+	delete[] __mem;
+	__mem = stack.__mem;
+	__maxptr = stack.__maxptr;
+	__ptr = stack.__ptr;
+	stack.__mem = nullptr;
+	stack.__maxptr = 0;
+	stack.__ptr = 0;
 	return *this;
 }
 
