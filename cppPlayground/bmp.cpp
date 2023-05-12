@@ -1,4 +1,5 @@
 ﻿#include "bmp.h"
+#include "colors.h"
 
 //通过RAW直接载入
 Bmp::Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB* surface)
@@ -12,13 +13,14 @@ Bmp::Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB* surface)
 	header_.bfSize = (width * 3 + row_offset_) * height + header_.bfOffBits;
 	info_.biSizeImage = (width * 3 + row_offset_) * height;
 
+	if (width * height > MAX_DATA_SIZE) throw BmpTooBigToLoadException();
 	surface_ = new TripleRGB[width * height];
 
 	*surface_ = *surface;
 }
 
 //指定颜色创建RAW
-Bmp::Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB color)
+Bmp::Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB color = Color::WHITE)
 {
 	info_.biWidth = width;
 	info_.biHeight = height;
@@ -44,6 +46,8 @@ Bmp::Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB color)
 Bmp::Bmp(bmp_type::BF_TYPE type, const char* path)
 {
 	std::ifstream ifs(path, std::ios::binary | std::ios::in);
+	if (!ifs.is_open()) throw BmpFileNotExistException();
+
 	ifs.read((char*)&header_, sizeof(BmpFileHeader));
 	ifs.read((char*)&info_, sizeof(BmpInfoHeader));
 
@@ -62,6 +66,7 @@ Bmp::Bmp(bmp_type::BF_TYPE type, const char* path)
 		//埋掉占位符
 		ifs.read(&sink, row_offset_);
 	}
+	ifs.close();
 }
 
 Bmp::Bmp(const Bmp& bmp) :
@@ -81,6 +86,18 @@ Bmp::Bmp(Bmp&& bmp) noexcept :
 	bmp.surface_ = nullptr;
 }
 
+Bmp& Bmp::operator=(const Bmp& bmp)
+{
+	if (this == &bmp) return *this;
+	//TODO
+}
+
+Bmp& Bmp::operator=(Bmp&& bmp)
+{
+	if (this == &bmp) return *this;
+	//TODO
+}
+
 //根据width与4的模计算行偏移量
 void Bmp::setRowOffset()
 {
@@ -92,6 +109,7 @@ void Bmp::setRowOffset()
 void Bmp::writeBmpFile(const char* path)
 {
 	std::ofstream ofs(path, std::ios::binary | std::ios::out);
+	if (!ofs.is_open()) throw BmpFileNotCantWrite(path);
 	ofs.write((char*)&header_, sizeof(BmpFileHeader));
 	ofs.write((char*)&info_, sizeof(BmpInfoHeader));
 	for (int row = 0; row < info_.biHeight; row++)
@@ -109,8 +127,9 @@ void Bmp::writeBmpFile(const char* path)
 	ofs.close();
 }
 
-//指定坐标返回。
+//指定像素重载
 TripleRGB* Bmp::operator()(int x, int y)
 {
+	if (x < 0 || y < 0 || x > info_.biWidth || y > info_.biHeight) throw BmpInvalidIndexException();
 	return surface_ + ((info_.biHeight - y - 1) * info_.biWidth + x);
 }

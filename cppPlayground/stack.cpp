@@ -83,6 +83,7 @@ void runStack()
 	} while (!isNumeric(size));
 
 	Stack stack(std::stoi(size));
+	Stack s2(2);
 	std::cin.get();
 	std::cout << "Maxium " << 4 * std::stoi(size) << " bytes." << std::endl;
 	while (true)
@@ -121,6 +122,8 @@ void runStack()
 		else
 		{
 			std::cout << "\033[1A\033[KIllegal input." << std::endl;
+			s2 = stack;
+			stack = s2;
 			continue;
 		}
 	}

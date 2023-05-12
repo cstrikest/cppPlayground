@@ -7,5 +7,3 @@
 #include<cstdlib>
 
 bool isNumeric(std::string & str);
-
-

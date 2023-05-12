@@ -10,14 +10,16 @@
 
 //bmp.h
 //BMP文件操作类 定义BMP文件结构与读写函数
-//使用包含RGB三个颜色数据的结构代表每个像素（RAW数据
+//使用包含RGB三个颜色数据的结构代表每个像素（RAW数据)
 
 #include <iostream>
 #include <fstream>
-#include <vector>
+#include <exception>
+#include <string>
 
 //0x00指针
 constexpr const char* ZERO_CHAR = "";
+constexpr int MAX_DATA_SIZE = 32768 * 32768;
 
 //BMP文件标识符
 namespace bmp_type
@@ -110,6 +112,33 @@ public:
 	//写BMP文件
 	void writeBmpFile(const char* path);
 
-	//
+	//指定像素重载 括号有点不好读，想用多重方括弧。但是好麻烦
 	TripleRGB* operator()(int x, int y);
+	Bmp& operator=(const Bmp& bmp);
+	Bmp& operator=(Bmp&& bmp);
+};
+
+//异常类定义
+class BmpInvalidIndexException : public std::invalid_argument
+{
+public:
+	BmpInvalidIndexException() :invalid_argument("Invalid pixel index.") {}
+};
+
+class BmpTooBigToLoadException : public std::exception
+{
+public:
+	BmpTooBigToLoadException() :exception("Image too big to load.") {}
+};
+
+class BmpFileNotExistException : public std::exception
+{
+public:
+	BmpFileNotExistException() : exception("File not exist.") {}
+};
+
+class BmpFileNotCantWrite : public std::exception
+{
+public:
+	BmpFileNotCantWrite(std::string file_path) : exception((std::string("Can't write image to ") + file_path).c_str()) {}
 };
