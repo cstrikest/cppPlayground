@@ -20,15 +20,18 @@
 constexpr const char* ZERO_CHAR = "";
 
 //BMP文件标识符
-enum BF_TYPE
+namespace bmp_type
 {
-	BM = 0x4d42,	//Windows3+ ,NT
-	BA = 0x4142,	//OS/2	Bitmap Array
-	CI = 0x4943,	//		Color Icon
-	CP = 0x5043,	//		Color pointer
-	IC = 0x4349,	//		Icon
-	PT = 0x5450		//		Pointer
-};
+	enum BF_TYPE
+	{
+		BM = 0x4d42,	//Windows3+ ,NT
+		BA = 0x4142,	//OS/2	Bitmap Array
+		CI = 0x4943,	//		Color Icon
+		CP = 0x5043,	//		Color pointer
+		IC = 0x4349,	//		Icon
+		PT = 0x5450		//		Pointer
+	};
+}
 
 //按照n字节对齐
 //不对齐的话bfSize会落到0x04上，文件头就会变成16字节，无法读取
@@ -72,38 +75,41 @@ class Bmp
 {
 private:
 	//文件头
-	BmpFileHeader __header;
+	BmpFileHeader header_;
 	//信息头
-	BmpInfoHeader __info;
+	BmpInfoHeader info_;
 	//补0行偏移量
-	unsigned int __row_offset;
+	unsigned int row_offset_;
 
 public:
 	//RAW像素颜色数据指针
-	TripleRGB* surface;
+	TripleRGB* surface_;
 
 	//通过RAW直接载入
-	Bmp(BF_TYPE type, int width, int height, TripleRGB* surface);
+	Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB* surface);
 	//指定颜色创建RAW
-	Bmp(BF_TYPE type, int width, int height, TripleRGB color);
+	Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB color);
 	//从BMP文件读
-	Bmp(BF_TYPE type, const char* path);
-	//复制构造函数 防止多重delete[]
+	Bmp(bmp_type::BF_TYPE type, const char* path);
 	Bmp(const Bmp& bmp);
+	Bmp(Bmp&&) noexcept;
 	//delete RAW指针
-	inline ~Bmp() { delete[] surface; }
+	inline ~Bmp() { delete[] surface_; }
 
-	inline int getImgSize() const { return __info.biWidth * __info.biHeight * 3; }
-	inline int getPixelNumber() const { return __info.biWidth * __info.biHeight; }
-	inline int getBfSize() const { return __header.bfSize; }
-	inline int getBiSize() const { return __info.biSize; }
-	inline int getWidth() const { return __info.biWidth; }
-	inline int getHeight() const { return __info.biHeight; }
-	inline int getRowOffset() const { return __row_offset; }
+	inline int getImgSize() const { return info_.biWidth * info_.biHeight * 3; }
+	inline int getPixelNumber() const { return info_.biWidth * info_.biHeight; }
+	inline int getBfSize() const { return header_.bfSize; }
+	inline int getBiSize() const { return info_.biSize; }
+	inline int getWidth() const { return info_.biWidth; }
+	inline int getHeight() const { return info_.biHeight; }
+	inline int getRowOffset() const { return row_offset_; }
 
 	//根据width与4的模计算行偏移量
 	void setRowOffset();
 
 	//写BMP文件
 	void writeBmpFile(const char* path);
+
+	//
+	TripleRGB* operator()(int x, int y);
 };

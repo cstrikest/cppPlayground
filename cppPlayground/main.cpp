@@ -5,13 +5,30 @@
 int main()
 {
 	//runStack();
-	auto p = "C:\\Users\\0070200621\\Desktop\\a.bmp";
-	auto b = "C:\\Users\\0070200621\\Desktop\\b.bmp";
-	auto c = "C:\\Users\\0070200621\\Desktop\\c.bmp";
-	Bmp i(BM, 1243, 10, SAKURA);
-	i.writeBmpFile(p);
-	Bmp r(BM,b);
-	std::cout <<r.getPixelNumber() << std::endl << r.getRowOffset() << std::endl;
-	r.writeBmpFile(c);
+	Bmp bmp(bmp_type::BM, "C:\\Users\\0070200621\\Desktop\\b.bmp");
+	for (int i = bmp.getWidth() - 1; i >= 0; --i)
+	{
+		*bmp(i, 0) = Color::GREEN;
+	}
+	for (int i = bmp.getHeight() - 1; i >= 0; --i)
+	{
+		*bmp(0, i) = Color::BLUE;
+	}
+	bmp.writeBmpFile("C:\\Users\\0070200621\\Desktop\\c.bmp");
+
+	Bmp mosaic(bmp_type::BM, 1000, 1000, Color::WHITE);
+	for (int i = mosaic.getWidth() - 1; i >= 0; --i)
+	{
+		if (i % 2 == 0)
+		{
+			for (int j = mosaic.getHeight() - 1; j >= 0; --j)
+			{
+				if (i % 3 == 0) *mosaic(i, j) = Color::RED;
+				else if (i % 4 == 0) *mosaic(i, j) = Color::BLUE;
+				else *mosaic(i, j) = Color::GREEN;
+			}
+		}
+	}
+	mosaic.writeBmpFile("C:\\Users\\0070200621\\Desktop\\a.bmp");
 	return 0;
 }
