@@ -27,7 +27,7 @@
     <ClCompile Include="bmp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="image.cpp">
+    <ClCompile Include="image_rgb_24bit.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClInclude Include="bmp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="image.h">
+    <ClInclude Include="image_rgb_24bit.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="colors.h">

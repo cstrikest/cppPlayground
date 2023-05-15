@@ -23,6 +23,7 @@ Bmp::Bmp(bmp_type::BF_TYPE type, int width, int height): ImageRgb24b(width, heig
 
 	header_.bfSize = (width * 3 + row_offset_) * height + header_.bfOffBits;
 	info_.biSizeImage = (width * 3 + row_offset_) * height;
+	std::cout << "new bmp" << std::endl;
 }
 
 //从BMP文件读
@@ -49,6 +50,7 @@ Bmp::Bmp(const char* path): ImageRgb24b(getBmpHead(path).first, getBmpHead(path)
 		ifs.read(&sink, row_offset_);
 	}
 	ifs.close();
+	std::cout << "new bmp" << std::endl;
 }
 
 //根据width与4的模计算行偏移量

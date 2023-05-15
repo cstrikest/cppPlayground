@@ -133,7 +133,7 @@
   <ItemGroup>
     <ClInclude Include="bmp.h" />
     <ClInclude Include="colors.h" />
-    <ClInclude Include="image.h" />
+    <ClInclude Include="image_rgb_24bit.h" />
     <ClInclude Include="stack.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
@@ -142,7 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bmp.cpp" />
-    <ClCompile Include="image.cpp" />
+    <ClCompile Include="image_rgb_24bit.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stack.cpp" />
     <ClCompile Include="utils.cpp" />

@@ -20,7 +20,7 @@ int main()
 		bmp.writeBmpFile("C:\\Users\\0070200621\\Desktop\\c.bmp");
 
 		//新建一个空白bmp 随便画画
-		Bmp mosaic(bmp_type::BM, 1920, 1080);
+		/*Bmp mosaic(bmp_type::BM, 1920, 1080);
 		for (int i = mosaic.getWidth() - 1; i >= 0; --i)
 		{
 			if (i % 2 == 0)
@@ -33,7 +33,7 @@ int main()
 				}
 			}
 		}
-		mosaic.writeBmpFile("C:\\Users\\0070200621\\Desktop\\s.bmp");
+		mosaic.writeBmpFile("C:\\Users\\0070200621\\Desktop\\s.bmp");*/
 	}
 	catch (std::exception& e)
 	{

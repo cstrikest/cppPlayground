@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <exception>
 #include <string>
+#include <iostream>
 
 constexpr int MAX_DATA_SIZE = 32768 * 32768;
 
@@ -24,7 +25,7 @@ public:
 
 	ImageRgb24b(int width, int height);
 
-	inline ~ImageRgb24b() { delete[] data_; }
+	inline virtual ~ImageRgb24b() { delete[] data_; std::cout << "del image" << std::endl;}
 	ImageRgb24b(const ImageRgb24b&);
 	ImageRgb24b(ImageRgb24b&&) noexcept;
 	ImageRgb24b& operator=(const ImageRgb24b&);

@@ -12,9 +12,8 @@
 //BMP文件操作类 定义BMP文件结构与读写函数
 //使用包含RGB三个颜色数据的结构代表每个像素（RAW数据)
 
-#include <iostream>
 #include <fstream>
-#include "image.h"
+#include "image_rgb_24bit.h"
 
 //0x00指针
 constexpr const char* ZERO_CHAR = "";
@@ -80,17 +79,17 @@ public:
 	//从BMP文件读
 	Bmp(const char* path);
 
-	virtual inline ~Bmp() {}
+	inline virtual ~Bmp() { std::cout << "del bmp" << std::endl; }
 	inline Bmp(const Bmp& bmp) :
 		ImageRgb24b(bmp),
 		header_(bmp.header_),
 		info_(bmp.info_),
-		row_offset_(bmp.row_offset_) {}
+		row_offset_(bmp.row_offset_) {std::cout << "copy image" << std::endl;}
 	inline Bmp(Bmp&& bmp) noexcept :
 		ImageRgb24b(bmp),
 		header_(bmp.header_),
 		info_(bmp.info_),
-		row_offset_(bmp.row_offset_) {}
+		row_offset_(bmp.row_offset_) {std::cout << "move image" << std::endl;}
 
 	inline int getImgSize() const { return info_.biWidth * info_.biHeight * 3; }
 	inline int getPixelNumber() const { return info_.biWidth * info_.biHeight; }
@@ -107,8 +106,6 @@ public:
 	//写BMP文件
 	void writeBmpFile(const char* path);
 
-	Bmp& operator=(const Bmp& bmp);
-	Bmp& operator=(Bmp&& bmp) noexcept;
 };
 
 //异常类定义
