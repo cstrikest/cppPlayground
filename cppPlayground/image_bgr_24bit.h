@@ -3,8 +3,10 @@
 #include <string>
 #include <iostream>
 
+//最大可容许面积
 constexpr int MAX_DATA_SIZE = 32768 * 32768;
 
+//单像素结构
 struct TripleBGR
 {
 	unsigned char			b;
@@ -17,7 +19,6 @@ typedef TripleBGR Color;
 //图像RAW数据类，线性储存各个像素BGR值
 class ImageBgr24b
 {
-
 public:
 	int width_;
 	int height_;
@@ -36,11 +37,9 @@ public:
 	void setColor(Color c);
 	//指定像素重载 括号有点不好读，想用多重方括弧。但是好麻烦
 	TripleBGR* operator()(int, int);
-	//流式函数 重载
-	ImageBgr24b& operator<<(ImageBgr24b&);
 };
 
-//异常类定义
+//图片面积过大异常
 class TooBigToLoadException : public std::exception
 {
 public:

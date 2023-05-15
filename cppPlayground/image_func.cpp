@@ -1,15 +1,9 @@
 #include "image_func.h"
 #include "colors.h"
 #include <cmath>
+
 namespace image_func
 {
-
-	ImageBgr24b& operator>>(ImageBgr24b& img, DIRECT_IMAGE_FUNC f)
-	{
-		f(img);
-		return img;
-	}
-
 	ImageBgr24b& randMagenta(ImageBgr24b& img)
 	{
 		for (int x = img.width_ - 1; x >= 0; --x)

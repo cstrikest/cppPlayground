@@ -19,7 +19,6 @@
 constexpr const char* ZERO_CHAR = "";
 
 //BMP文件标识符
-
 enum BF_TYPE
 {
 	BM = 0x4d42,	//Windows3+ ,NT
@@ -37,10 +36,10 @@ enum BF_TYPE
 //BMP文件头 定义了文件标识符 文件大小等											14bytes
 struct BmpFileHeader
 {
-	unsigned short			bfType;					//标识符，现在一般是BM		2
+	unsigned short			bfType;					//标识符，一般是BM			2
 	unsigned int			bfSize;					//文件大小				4
-	const unsigned short	bfReserved1 = 0x00;		//固定置0				2
-	const unsigned short	bfReserved2 = 0x00;		//固定置0				2
+	const unsigned short	bfReserved1 = 0x00;		//固定置0位				2
+	const unsigned short	bfReserved2 = 0x00;		//固定置0位				2
 	const unsigned int		bfOffBits = 0x36;		//图片信息偏移量			4
 };
 
@@ -65,9 +64,9 @@ struct BmpInfoHeader
 class Bmp : public ImageBgr24b
 {
 private:
-	//文件头
+	//BMP文件头
 	BmpFileHeader header_;
-	//信息头
+	//BMP信息头
 	BmpInfoHeader info_;
 	//补0行偏移量
 	unsigned int row_offset_;
