@@ -1,60 +1,41 @@
 ﻿#include "bmp.h"
 #include "colors.h"
 
-//通过RAW直接载入
-Bmp::Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB* surface)
-{
-	info_.biWidth = width;
-	info_.biHeight = height;
-
-	setRowOffset();
-
-	header_.bfType = type;
-	header_.bfSize = (width * 3 + row_offset_) * height + header_.bfOffBits;
-	info_.biSizeImage = (width * 3 + row_offset_) * height;
-
-	if (width * height > MAX_DATA_SIZE) 
-		throw BmpTooBigToLoadException(width * height, MAX_DATA_SIZE);
-	surface_ = new TripleRGB[width * height];
-
-	*surface_ = *surface;
-}
-
-//指定颜色创建RAW
-Bmp::Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB color = Color::WHITE)
-{
-	info_.biWidth = width;
-	info_.biHeight = height;
-
-	setRowOffset();
-
-	header_.bfType = type;
-	header_.bfSize = (width * 3 + row_offset_) * height + header_.bfOffBits;
-	info_.biSizeImage = (width * 3 + row_offset_) * height;
-
-	surface_ = new TripleRGB[width * height];
-
-	for (int row = 0; row < height; row++)
-	{
-		for (int column = 0; column < width; column++)
-		{
-			*(surface_ + (row * width + column)) = color;
-		}
-	}
-}
-
-//从BMP文件读
-Bmp::Bmp(bmp_type::BF_TYPE type, const char* path)
+std::pair<int, int> Bmp::getBmpHead(const char* path)
 {
 	std::ifstream ifs(path, std::ios::binary | std::ios::in);
 	if (!ifs.is_open()) throw BmpFileNotExistException();
+	BmpInfoHeader i;
+	ifs.read((char*)&i, sizeof(BmpFileHeader));
+	if (ifs.fail()) throw std::runtime_error("Failed to read Bmp header.");
+	ifs.read((char*)&i, sizeof(BmpInfoHeader));
+	if (ifs.fail()) throw std::runtime_error("Failed to read Bmp info.");
+	return std::make_pair(i.biWidth, i.biHeight);
+}
 
-	ifs.read((char*)&header_, sizeof(BmpFileHeader));
-	ifs.read((char*)&info_, sizeof(BmpInfoHeader));
+Bmp::Bmp(bmp_type::BF_TYPE type, int width, int height): ImageRgb24b(width, height)
+{
+	header_.bfType = type;
+	info_.biWidth = width;
+	info_.biHeight = height;
 
 	setRowOffset();
 
-	surface_ = new TripleRGB[info_.biWidth * info_.biHeight];
+	header_.bfSize = (width * 3 + row_offset_) * height + header_.bfOffBits;
+	info_.biSizeImage = (width * 3 + row_offset_) * height;
+}
+
+//从BMP文件读
+Bmp::Bmp(const char* path): ImageRgb24b(getBmpHead(path).first, getBmpHead(path).second)
+{
+	std::ifstream ifs(path, std::ios::binary | std::ios::in);
+	if (!ifs.is_open()) throw BmpFileNotExistException();
+	ifs.read((char*)&header_, sizeof(BmpFileHeader));
+	if (ifs.fail()) throw std::runtime_error("Failed to read Bmp header.");
+	ifs.read((char*)&info_, sizeof(BmpInfoHeader));
+	if (ifs.fail()) throw std::runtime_error("Failed to read Bmp info.");
+
+	setRowOffset();
 
 	char sink = ' ';
 
@@ -62,58 +43,12 @@ Bmp::Bmp(bmp_type::BF_TYPE type, const char* path)
 	{
 		for (int column = 0; column < info_.biWidth; column++)
 		{
-			ifs.read((char*)(surface_ + (row * info_.biWidth + column)), sizeof(TripleRGB));
+			ifs.read((char*)(data_ + (row * info_.biWidth + column)), sizeof(TripleRGB));
 		}
 		//埋掉占位符
 		ifs.read(&sink, row_offset_);
 	}
 	ifs.close();
-}
-
-Bmp::Bmp(const Bmp& bmp) :
-	header_(bmp.header_),
-	info_(bmp.info_),
-	row_offset_(bmp.row_offset_)
-{
-	int len = info_.biWidth * info_.biHeight;
-	surface_ = new TripleRGB[len];
-	memcpy(surface_, bmp.surface_, len);
-}
-
-Bmp::Bmp(Bmp&& bmp) noexcept :
-	header_(bmp.header_),
-	info_(bmp.info_),
-	row_offset_(bmp.row_offset_)
-{
-	surface_ = bmp.surface_;
-	bmp.surface_ = nullptr;
-}
-
-Bmp& Bmp::operator=(const Bmp& bmp)
-{
-	if (this == &bmp) return *this;
-	delete[] surface_;
-	int len = info_.biWidth * info_.biHeight;
-	surface_ = new TripleRGB[len];
-	memcpy(surface_, bmp.surface_, len);
-	memcpy(&header_, &bmp.header_, sizeof(bmp.header_));
-	memcpy(&info_, &bmp.info_, sizeof(bmp.info_));
-	row_offset_ = bmp.row_offset_;
-	return *this;
-}
-
-Bmp& Bmp::operator=(Bmp&& bmp) noexcept
-{
-	if (this == &bmp) return *this;
-	delete[] surface_;
-	int len = info_.biWidth * info_.biHeight;
-	surface_ = new TripleRGB[len];
-	surface_ = bmp.surface_;
-	memcpy(&header_, &bmp.header_, sizeof(bmp.header_));
-	memcpy(&info_, &bmp.info_, sizeof(bmp.info_));
-	row_offset_ = bmp.row_offset_;
-	bmp.surface_ = nullptr;
-	return *this;
 }
 
 //根据width与4的模计算行偏移量
@@ -136,7 +71,7 @@ void Bmp::writeBmpFile(const char* path)
 	{
 		for (int column = 0; column < info_.biWidth; column++)
 		{
-			ofs.write((char*)(surface_ + (row * info_.biWidth + column)), 3);
+			ofs.write((char*)(data_ + (row * info_.biWidth + column)), 3);
 		}
 		for (int t = row_offset_; t > 0; t--)
 		{
@@ -146,11 +81,4 @@ void Bmp::writeBmpFile(const char* path)
 	}
 	ofs.flush();	
 	ofs.close();
-}
-
-//指定像素重载
-TripleRGB* Bmp::operator()(int x, int y)
-{
-	if (x < 0 || y < 0 || x >= info_.biWidth || y >= info_.biHeight) throw BmpInvalidIndexException(x, y);
-	return surface_ + ((info_.biHeight - y - 1) * info_.biWidth + x);
 }

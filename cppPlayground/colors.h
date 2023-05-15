@@ -1,7 +1,7 @@
 #pragma once
-#include "bmp.h"
+#include "image.h"
 
-namespace Color
+namespace Colors
 {
 	constexpr TripleRGB BLUE = { 255, 0, 0 };
 	constexpr TripleRGB GREEN = { 0, 255, 0 };

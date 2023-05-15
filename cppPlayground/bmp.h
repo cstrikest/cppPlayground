@@ -14,12 +14,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <exception>
-#include <string>
+#include "image.h"
 
 //0x00指针
 constexpr const char* ZERO_CHAR = "";
-constexpr int MAX_DATA_SIZE = 32768 * 32768;
 
 //BMP文件标识符
 namespace bmp_type
@@ -66,14 +64,7 @@ struct BmpInfoHeader
 	const unsigned int		biClrImportant = 0;		//重要颜色索引数 0为都重要	4
 };
 
-struct TripleRGB
-{
-	unsigned char			b;
-	unsigned char			g;
-	unsigned char			r;
-};
-
-class Bmp
+class Bmp : public ImageRgb24b
 {
 private:
 	//文件头
@@ -82,21 +73,24 @@ private:
 	BmpInfoHeader info_;
 	//补0行偏移量
 	unsigned int row_offset_;
-	//RAW像素颜色数据指针
-	TripleRGB* surface_;
+	static std::pair<int, int> getBmpHead(const char*);
 
 public:
-
-	//通过RAW直接载入
-	Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB* surface);
-	//指定颜色创建RAW
-	Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB color);
+	Bmp(bmp_type::BF_TYPE type, int width, int height);
 	//从BMP文件读
-	Bmp(bmp_type::BF_TYPE type, const char* path);
-	Bmp(const Bmp& bmp);
-	Bmp(Bmp&&) noexcept;
-	//delete RAW指针
-	inline ~Bmp() { delete[] surface_; }
+	Bmp(const char* path);
+
+	virtual inline ~Bmp() {}
+	inline Bmp(const Bmp& bmp) :
+		ImageRgb24b(bmp),
+		header_(bmp.header_),
+		info_(bmp.info_),
+		row_offset_(bmp.row_offset_) {}
+	inline Bmp(Bmp&& bmp) noexcept :
+		ImageRgb24b(bmp),
+		header_(bmp.header_),
+		info_(bmp.info_),
+		row_offset_(bmp.row_offset_) {}
 
 	inline int getImgSize() const { return info_.biWidth * info_.biHeight * 3; }
 	inline int getPixelNumber() const { return info_.biWidth * info_.biHeight; }
@@ -105,6 +99,7 @@ public:
 	inline int getWidth() const { return info_.biWidth; }
 	inline int getHeight() const { return info_.biHeight; }
 	inline int getRowOffset() const { return row_offset_; }
+	//inline ImageRgb24b getImageRgb24b() { return data_; }
 
 	//根据width与4的模计算行偏移量
 	void setRowOffset();
@@ -112,8 +107,6 @@ public:
 	//写BMP文件
 	void writeBmpFile(const char* path);
 
-	//指定像素重载 括号有点不好读，想用多重方括弧。但是好麻烦
-	TripleRGB* operator()(int x, int y);
 	Bmp& operator=(const Bmp& bmp);
 	Bmp& operator=(Bmp&& bmp) noexcept;
 };
@@ -122,28 +115,19 @@ public:
 class BmpInvalidIndexException : public std::invalid_argument
 {
 public:
-	BmpInvalidIndexException(int x, int y)
+	inline BmpInvalidIndexException(int x, int y)
 		: std::invalid_argument("Invalid pixel index. x: " +
 			std::to_string(x) + " y: " + std::to_string(y)) {}
-};
-
-class BmpTooBigToLoadException : public std::exception
-{
-public:
-	BmpTooBigToLoadException(int actualSize, int maxSize)
-		: std::exception(("Image too big to load. Actual size: " +
-			std::to_string(actualSize) + ", Max size: " +
-			std::to_string(maxSize)).c_str()) {}
 };
 
 class BmpFileNotExistException : public std::exception
 {
 public:
-	BmpFileNotExistException() : exception("File not exist.") {}
+	inline BmpFileNotExistException() : exception("File not exist.") {}
 };
 
 class BmpFileNotCantWrite : public std::exception
 {
 public:
-	BmpFileNotCantWrite(std::string file_path) : exception((std::string("Can't write image to ") + file_path).c_str()) {}
+	inline BmpFileNotCantWrite(std::string file_path) : exception((std::string("Can't write image to ") + file_path).c_str()) {}
 };
