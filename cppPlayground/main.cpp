@@ -4,14 +4,9 @@
 
 int main()
 {
-	runStack();
-
-	return 0;
-
+	//runStack();
 	try
 	{
-
-
 		//打开一个bmp，随便画画线，写到新文件
 		Bmp bmp(bmp_type::BM, "C:\\Users\\0070200621\\Desktop\\b.bmp");
 		for (int i = bmp.getWidth() - 1; i >= 0; --i)

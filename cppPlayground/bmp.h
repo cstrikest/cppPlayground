@@ -82,10 +82,10 @@ private:
 	BmpInfoHeader info_;
 	//补0行偏移量
 	unsigned int row_offset_;
-
-public:
 	//RAW像素颜色数据指针
 	TripleRGB* surface_;
+
+public:
 
 	//通过RAW直接载入
 	Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB* surface);
@@ -115,20 +115,25 @@ public:
 	//指定像素重载 括号有点不好读，想用多重方括弧。但是好麻烦
 	TripleRGB* operator()(int x, int y);
 	Bmp& operator=(const Bmp& bmp);
-	Bmp& operator=(Bmp&& bmp);
+	Bmp& operator=(Bmp&& bmp) noexcept;
 };
 
 //异常类定义
 class BmpInvalidIndexException : public std::invalid_argument
 {
 public:
-	BmpInvalidIndexException() :invalid_argument("Invalid pixel index.") {}
+	BmpInvalidIndexException(int x, int y)
+		: std::invalid_argument("Invalid pixel index. x: " +
+			std::to_string(x) + " y: " + std::to_string(y)) {}
 };
 
 class BmpTooBigToLoadException : public std::exception
 {
 public:
-	BmpTooBigToLoadException() :exception("Image too big to load.") {}
+	BmpTooBigToLoadException(int actualSize, int maxSize)
+		: std::exception(("Image too big to load. Actual size: " +
+			std::to_string(actualSize) + ", Max size: " +
+			std::to_string(maxSize)).c_str()) {}
 };
 
 class BmpFileNotExistException : public std::exception

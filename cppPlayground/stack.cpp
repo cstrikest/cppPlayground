@@ -6,6 +6,7 @@ Stack::Stack(const Stack& stack) :
 	__ptr(stack.__ptr)
 {
 	__mem = new int[__maxptr];
+	memcpy(__mem, stack.__mem, __maxptr);
 	*__mem = *stack.__mem;
 }
 
@@ -39,7 +40,7 @@ Stack& Stack::operator+=(const int& value)
 	return *this;
 }
 
-int Stack::operator--() { if (__ptr > 0) return *(__mem + --__ptr); }
+int Stack::operator--() { return *(__mem + --__ptr); }
 
 // 友元运算符重载 
 std::ostream& operator<<(std::ostream& os, Stack& stack) { return os << "A stack with " << stack.__maxptr << " integer."; }
@@ -51,8 +52,8 @@ Stack& Stack::operator=(const Stack& stack)
 	delete[] __mem;
 	__mem = new int[__maxptr];
 	__maxptr = stack.__maxptr;
-	*__mem = *stack.__mem;
 	__ptr = stack.__ptr;
+	memcpy(__mem, stack.__mem, __maxptr);
 	return *this;
 }
 
@@ -108,7 +109,7 @@ void runStack()
 		else if (tmp[0] == 'p')
 		{
 			if (stack.isEmpty()) std::cout << "\033[1AEMPTY." << std::endl;
-			//else std::cout << stack.pop() << std::endl;lse std::cout << stack.pop() << std::endl;
+			//else std::cout << stack.pop() << std::endl;
 			else std::cout << --stack << std::endl;
 
 		}
@@ -122,8 +123,6 @@ void runStack()
 		else
 		{
 			std::cout << "\033[1A\033[KIllegal input." << std::endl;
-			s2 = stack;
-			stack = s2;
 			continue;
 		}
 	}

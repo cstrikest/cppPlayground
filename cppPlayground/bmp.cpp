@@ -13,7 +13,8 @@ Bmp::Bmp(bmp_type::BF_TYPE type, int width, int height, TripleRGB* surface)
 	header_.bfSize = (width * 3 + row_offset_) * height + header_.bfOffBits;
 	info_.biSizeImage = (width * 3 + row_offset_) * height;
 
-	if (width * height > MAX_DATA_SIZE) throw BmpTooBigToLoadException();
+	if (width * height > MAX_DATA_SIZE) 
+		throw BmpTooBigToLoadException(width * height, MAX_DATA_SIZE);
 	surface_ = new TripleRGB[width * height];
 
 	*surface_ = *surface;
@@ -74,7 +75,9 @@ Bmp::Bmp(const Bmp& bmp) :
 	info_(bmp.info_),
 	row_offset_(bmp.row_offset_)
 {
-	surface_ = new TripleRGB[info_.biWidth * info_.biHeight];
+	int len = info_.biWidth * info_.biHeight;
+	surface_ = new TripleRGB[len];
+	memcpy(surface_, bmp.surface_, len);
 }
 
 Bmp::Bmp(Bmp&& bmp) noexcept :
@@ -89,13 +92,28 @@ Bmp::Bmp(Bmp&& bmp) noexcept :
 Bmp& Bmp::operator=(const Bmp& bmp)
 {
 	if (this == &bmp) return *this;
-	//TODO
+	delete[] surface_;
+	int len = info_.biWidth * info_.biHeight;
+	surface_ = new TripleRGB[len];
+	memcpy(surface_, bmp.surface_, len);
+	memcpy(&header_, &bmp.header_, sizeof(bmp.header_));
+	memcpy(&info_, &bmp.info_, sizeof(bmp.info_));
+	row_offset_ = bmp.row_offset_;
+	return *this;
 }
 
-Bmp& Bmp::operator=(Bmp&& bmp)
+Bmp& Bmp::operator=(Bmp&& bmp) noexcept
 {
 	if (this == &bmp) return *this;
-	//TODO
+	delete[] surface_;
+	int len = info_.biWidth * info_.biHeight;
+	surface_ = new TripleRGB[len];
+	surface_ = bmp.surface_;
+	memcpy(&header_, &bmp.header_, sizeof(bmp.header_));
+	memcpy(&info_, &bmp.info_, sizeof(bmp.info_));
+	row_offset_ = bmp.row_offset_;
+	bmp.surface_ = nullptr;
+	return *this;
 }
 
 //根据width与4的模计算行偏移量
@@ -111,7 +129,9 @@ void Bmp::writeBmpFile(const char* path)
 	std::ofstream ofs(path, std::ios::binary | std::ios::out);
 	if (!ofs.is_open()) throw BmpFileNotCantWrite(path);
 	ofs.write((char*)&header_, sizeof(BmpFileHeader));
+	if (ofs.fail()) throw std::runtime_error("Failed to write Bmp header.");
 	ofs.write((char*)&info_, sizeof(BmpInfoHeader));
+	if (ofs.fail()) throw std::runtime_error("Failed to write Bmp info.");
 	for (int row = 0; row < info_.biHeight; row++)
 	{
 		for (int column = 0; column < info_.biWidth; column++)
@@ -122,14 +142,15 @@ void Bmp::writeBmpFile(const char* path)
 		{
 			ofs.write(ZERO_CHAR, 1);
 		}
+		if (ofs.fail()) throw std::runtime_error("Failed to write Bmp image data.");
 	}
-	ofs.flush();
+	ofs.flush();	
 	ofs.close();
 }
 
 //指定像素重载
 TripleRGB* Bmp::operator()(int x, int y)
 {
-	if (x < 0 || y < 0 || x > info_.biWidth || y > info_.biHeight) throw BmpInvalidIndexException();
+	if (x < 0 || y < 0 || x >= info_.biWidth || y >= info_.biHeight) throw BmpInvalidIndexException(x, y);
 	return surface_ + ((info_.biHeight - y - 1) * info_.biWidth + x);
 }
