@@ -13,21 +13,30 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\base">
+      <UniqueIdentifier>{37e595a9-2f6a-4091-adea-0fd0f6aa56fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\base">
+      <UniqueIdentifier>{a753c940-08ea-45c5-93d6-f2d933bd6224}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stack.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="utils.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="bmp.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\base</Filter>
     </ClCompile>
-    <ClCompile Include="image_rgb_24bit.cpp">
+    <ClCompile Include="image_bgr_24bit.cpp">
+      <Filter>源文件\base</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>源文件\base</Filter>
+    </ClCompile>
+    <ClCompile Include="stack.cpp">
+      <Filter>源文件\base</Filter>
+    </ClCompile>
+    <ClCompile Include="image_func.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,16 +44,19 @@
     <ClInclude Include="stack.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="utils.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="bmp.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="image_rgb_24bit.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\base</Filter>
     </ClInclude>
     <ClInclude Include="colors.h">
+      <Filter>头文件\base</Filter>
+    </ClInclude>
+    <ClInclude Include="image_bgr_24bit.h">
+      <Filter>头文件\base</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>头文件\base</Filter>
+    </ClInclude>
+    <ClInclude Include="image_func.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -13,24 +13,23 @@
 //使用包含RGB三个颜色数据的结构代表每个像素（RAW数据)
 
 #include <fstream>
-#include "image_rgb_24bit.h"
+#include "image_bgr_24bit.h"
 
 //0x00指针
 constexpr const char* ZERO_CHAR = "";
 
 //BMP文件标识符
-namespace bmp_type
+
+enum BF_TYPE
 {
-	enum BF_TYPE
-	{
-		BM = 0x4d42,	//Windows3+ ,NT
-		BA = 0x4142,	//OS/2	Bitmap Array
-		CI = 0x4943,	//		Color Icon
-		CP = 0x5043,	//		Color pointer
-		IC = 0x4349,	//		Icon
-		PT = 0x5450		//		Pointer
-	};
-}
+	BM = 0x4d42,	//Windows3+ ,NT
+	BA = 0x4142,	//OS/2	Bitmap Array
+	CI = 0x4943,	//		Color Icon
+	CP = 0x5043,	//		Color pointer
+	IC = 0x4349,	//		Icon
+	PT = 0x5450		//		Pointer
+};
+
 
 //按照n字节对齐
 //不对齐的话bfSize会落到0x04上，文件头就会变成16字节，无法读取
@@ -63,7 +62,7 @@ struct BmpInfoHeader
 	const unsigned int		biClrImportant = 0;		//重要颜色索引数 0为都重要	4
 };
 
-class Bmp : public ImageRgb24b
+class Bmp : public ImageBgr24b
 {
 private:
 	//文件头
@@ -72,24 +71,32 @@ private:
 	BmpInfoHeader info_;
 	//补0行偏移量
 	unsigned int row_offset_;
-	static std::pair<int, int> getBmpHead(const char*);
+	//读bmp文件长宽
+	static std::pair<int, int> readBmpSize(const char*);
 
 public:
-	Bmp(bmp_type::BF_TYPE type, int width, int height);
+	//创建空对象
+	Bmp(BF_TYPE type, int width, int height);
 	//从BMP文件读
 	Bmp(const char* path);
+	//从RAW创建
+	Bmp(BF_TYPE, const ImageBgr24b&);
 
 	inline virtual ~Bmp() { std::cout << "del bmp" << std::endl; }
 	inline Bmp(const Bmp& bmp) :
-		ImageRgb24b(bmp),
+		ImageBgr24b(bmp),
 		header_(bmp.header_),
 		info_(bmp.info_),
-		row_offset_(bmp.row_offset_) {std::cout << "copy image" << std::endl;}
+		row_offset_(bmp.row_offset_) {
+		std::cout << "copy image" << std::endl;
+	}
 	inline Bmp(Bmp&& bmp) noexcept :
-		ImageRgb24b(bmp),
+		ImageBgr24b(bmp),
 		header_(bmp.header_),
 		info_(bmp.info_),
-		row_offset_(bmp.row_offset_) {std::cout << "move image" << std::endl;}
+		row_offset_(bmp.row_offset_) {
+		std::cout << "move image" << std::endl;
+	}
 
 	inline int getImgSize() const { return info_.biWidth * info_.biHeight * 3; }
 	inline int getPixelNumber() const { return info_.biWidth * info_.biHeight; }
@@ -98,13 +105,13 @@ public:
 	inline int getWidth() const { return info_.biWidth; }
 	inline int getHeight() const { return info_.biHeight; }
 	inline int getRowOffset() const { return row_offset_; }
-	//inline ImageRgb24b getImageRgb24b() { return data_; }
+	inline ImageBgr24b& getImageBgr24b() { return *this; }
 
 	//根据width与4的模计算行偏移量
 	void setRowOffset();
 
 	//写BMP文件
-	void writeBmpFile(const char* path);
+	void save(const char* path);
 
 };
 

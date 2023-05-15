@@ -1,7 +1,7 @@
 ﻿#include "bmp.h"
 #include "colors.h"
 
-std::pair<int, int> Bmp::getBmpHead(const char* path)
+std::pair<int, int> Bmp::readBmpSize(const char* path)
 {
 	std::ifstream ifs(path, std::ios::binary | std::ios::in);
 	if (!ifs.is_open()) throw BmpFileNotExistException();
@@ -13,21 +13,23 @@ std::pair<int, int> Bmp::getBmpHead(const char* path)
 	return std::make_pair(i.biWidth, i.biHeight);
 }
 
-Bmp::Bmp(bmp_type::BF_TYPE type, int width, int height): ImageRgb24b(width, height)
+Bmp::Bmp(BF_TYPE type, int w, int h): ImageBgr24b(w, h)
 {
 	header_.bfType = type;
-	info_.biWidth = width;
-	info_.biHeight = height;
+	width_ = w;
+	height_ = h;
+	info_.biWidth = width_;
+	info_.biHeight = height_;
 
 	setRowOffset();
 
-	header_.bfSize = (width * 3 + row_offset_) * height + header_.bfOffBits;
-	info_.biSizeImage = (width * 3 + row_offset_) * height;
+	header_.bfSize = (width_ * 3 + row_offset_) * height_ + header_.bfOffBits;
+	info_.biSizeImage = (width_ * 3 + row_offset_) * height_;
 	std::cout << "new bmp" << std::endl;
 }
 
 //从BMP文件读
-Bmp::Bmp(const char* path): ImageRgb24b(getBmpHead(path).first, getBmpHead(path).second)
+Bmp::Bmp(const char* path): ImageBgr24b(readBmpSize(path).first, readBmpSize(path).second)
 {
 	std::ifstream ifs(path, std::ios::binary | std::ios::in);
 	if (!ifs.is_open()) throw BmpFileNotExistException();
@@ -40,11 +42,11 @@ Bmp::Bmp(const char* path): ImageRgb24b(getBmpHead(path).first, getBmpHead(path)
 
 	char sink = ' ';
 
-	for (int row = 0; row < info_.biHeight; row++)
+	for (int row = 0; row < height_; row++)
 	{
-		for (int column = 0; column < info_.biWidth; column++)
+		for (int column = 0; column < width_; column++)
 		{
-			ifs.read((char*)(data_ + (row * info_.biWidth + column)), sizeof(TripleRGB));
+			ifs.read((char*)(data_ + (row * width_ + column)), sizeof(TripleBGR));
 		}
 		//埋掉占位符
 		ifs.read(&sink, row_offset_);
@@ -53,15 +55,27 @@ Bmp::Bmp(const char* path): ImageRgb24b(getBmpHead(path).first, getBmpHead(path)
 	std::cout << "new bmp" << std::endl;
 }
 
+//从RAW创建
+Bmp::Bmp(BF_TYPE type, const ImageBgr24b& i) : ImageBgr24b(i.width_, i.height_)
+{
+	header_.bfType = type;
+	info_.biWidth = i.width_;
+	info_.biHeight = i.height_;
+	setRowOffset();
+	header_.bfSize = (width_ * 3 + row_offset_) * height_ + header_.bfOffBits;
+	info_.biSizeImage = (width_ * 3 + row_offset_) * height_;
+	memcpy(data_, i.data_, getArea());
+}
+
 //根据width与4的模计算行偏移量
 void Bmp::setRowOffset()
 {
-	row_offset_ = (info_.biWidth * 3) % 4;
+	row_offset_ = (width_ * 3) % 4;
 	if (row_offset_ != 0) row_offset_ = 4 - row_offset_;
 }
 
 //写BMP文件
-void Bmp::writeBmpFile(const char* path)
+void Bmp::save(const char* path)
 {
 	std::ofstream ofs(path, std::ios::binary | std::ios::out);
 	if (!ofs.is_open()) throw BmpFileNotCantWrite(path);
@@ -69,11 +83,11 @@ void Bmp::writeBmpFile(const char* path)
 	if (ofs.fail()) throw std::runtime_error("Failed to write Bmp header.");
 	ofs.write((char*)&info_, sizeof(BmpInfoHeader));
 	if (ofs.fail()) throw std::runtime_error("Failed to write Bmp info.");
-	for (int row = 0; row < info_.biHeight; row++)
+	for (int row = 0; row < height_; row++)
 	{
-		for (int column = 0; column < info_.biWidth; column++)
+		for (int column = 0; column < width_; column++)
 		{
-			ofs.write((char*)(data_ + (row * info_.biWidth + column)), 3);
+			ofs.write((char*)(data_ + (row * width_ + column)), 3);
 		}
 		for (int t = row_offset_; t > 0; t--)
 		{
