@@ -13,6 +13,15 @@ using namespace image_func;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+struct StateInfo
+{
+    LPCTSTR str;
+    Stack stack;
+};
+
+StateInfo si{ _T("SB?"), Stack(100) };
+StateInfo* pState;
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
     const wchar_t* name = L"Paineter";
@@ -24,10 +33,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     //注册窗口类
     RegisterClass(&wc);
 
-    //创建菜单
-    HMENU hMenu = CreateMenu();
-    InsertMenu(hMenu, 0, 1, 0, NULL);
-
     //创建窗口
     HWND hwnd = CreateWindowEx(
         0L,                              // Optional window styles.
@@ -37,19 +42,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         // Size and position
         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
         NULL,       // Parent window    
-        hMenu,       // Menu
+        NULL,       // Menu
         hInstance,  // Instance handle
-        NULL        // Additional application data
+        &si      // Additional application data
     );
 
-    if (hwnd == NULL)
-    {
-        return 0;
-    }
+    if (hwnd == NULL) return 0;
 
     ShowWindow(hwnd, nCmdShow);
-
-    // Run the message loop.
 
     MSG msg = { };
     while (GetMessage(&msg, NULL, 0, 0) > 0)
@@ -61,8 +61,26 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     return 0;
 }
 
+inline StateInfo* GetAppState(HWND hwnd)
+{
+    LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    StateInfo* pState = reinterpret_cast<StateInfo*>(ptr);
+    return pState;
+}
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    if (uMsg == WM_CREATE)
+    {
+        CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+        pState = reinterpret_cast<StateInfo*>(pCreate->lpCreateParams);
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pState);
+    }
+    else
+    {
+        pState = GetAppState(hwnd);
+    }
+
     switch (uMsg)
     {
     case WM_DESTROY:
@@ -73,16 +91,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
-
-        // All painting occurs here, between BeginPaint and EndPaint.
-
-        FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
-
+        FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW));
         EndPaint(hwnd, &ps);
     }
     return 0;
 
+    case WM_CLOSE:
+        if (MessageBox(hwnd, _T("Ready to quit?"), _T("Quit"), MB_OKCANCEL) == IDOK)
+        {
+            DestroyWindow(hwnd);
+        }
+        return 0;
     }
+
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
