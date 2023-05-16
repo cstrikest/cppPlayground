@@ -59,16 +59,8 @@
     <ClInclude Include="image_func.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="menu.rc">
-      <Filter>资源文件</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

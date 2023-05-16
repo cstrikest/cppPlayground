@@ -8,8 +8,8 @@
 #include "image_func.h"
 #include <Windows.h>
 #include <tchar.h>
-#include "resource.h"
 
+//https://pan.baidu.com/s/1rnJ-_hoeVcdAaOVghx2Lqg?pwd=njo0
 using namespace image_func;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -47,10 +47,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         hInstance,  // Instance handle
         &si      // Additional application data
     );
-
-    //菜单
-    HMENU hMenu = LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MENU1));
-    SetMenu(hwnd, hMenu);
 
     if (hwnd == NULL) return 0;
 

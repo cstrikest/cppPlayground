@@ -135,7 +135,6 @@
     <ClInclude Include="colors.h" />
     <ClInclude Include="image_bgr_24bit.h" />
     <ClInclude Include="image_func.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="stack.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
@@ -149,9 +148,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stack.cpp" />
     <ClCompile Include="utils.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="menu.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
