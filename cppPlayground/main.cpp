@@ -8,6 +8,7 @@
 #include "image_func.h"
 #include <Windows.h>
 #include <tchar.h>
+#include "resource.h"
 
 using namespace image_func;
 
@@ -47,6 +48,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         &si      // Additional application data
     );
 
+    //菜单
+    HMENU hMenu = LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MENU1));
+    SetMenu(hwnd, hMenu);
+
     if (hwnd == NULL) return 0;
 
     ShowWindow(hwnd, nCmdShow);
@@ -66,6 +71,22 @@ inline StateInfo* GetAppState(HWND hwnd)
     LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
     StateInfo* pState = reinterpret_cast<StateInfo*>(ptr);
     return pState;
+}
+
+HWND getBtn(HWND hwnd)
+{
+    return CreateWindow(
+        L"BUTTON",  // Predefined class; Unicode assumed 
+        L"OK",      // Button text 
+        WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
+        10,         // x position 
+        10,         // y position 
+        100,        // Button width
+        100,        // Button height
+        hwnd,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
+        NULL);      // Pointer not needed.
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -102,6 +123,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             DestroyWindow(hwnd);
         }
         return 0;
+
+    case WM_LBUTTONDOWN:
+        getBtn(hwnd);
     }
 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
