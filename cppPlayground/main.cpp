@@ -10,6 +10,12 @@
 #include <tchar.h>
 
 //https://pan.baidu.com/s/1rnJ-_hoeVcdAaOVghx2Lqg?pwd=njo0
+//https://blog.csdn.net/memorywithyou/article/details/126607163
+//https://blog.csdn.net/dengjin20104042056/article/details/115174639
+//https://blog.csdn.net/vcjmd/article/details/125281085
+//https://dengjin.blog.csdn.net/article/details/115068410
+//https://dengjin.blog.csdn.net/article/details/122158699?spm=1001.2014.3001.5502&ydreferer=aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2RlbmdqaW4yMDEwNDA0MjA1Ni9hcnRpY2xlL2RldGFpbHMvMTE1MTc0NjM5
+
 using namespace image_func;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
